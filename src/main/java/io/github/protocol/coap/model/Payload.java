@@ -17,17 +17,32 @@
  * under the License.
  */
 
-package io.github.protocol.coap;
+package io.github.protocol.coap.model;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+public class Payload {
 
-class CoapConfigStorageTest {
+    private TextType textType;
 
-    @Test
-    public void testCoapConfig() {
-        CoapConfig coapConfig = CoapConfigStorage.getCoapConfig();
-        Assertions.assertEquals(coapConfig.getHost(), CoapConfig.DEFAULT_HOST);
+    private String text;
+
+    public Payload(TextType textType, String text) {
+        this.textType = textType;
+        this.text = text;
     }
 
+    public TextType getTextType() {
+        return textType;
+    }
+
+    public void setTextType(TextType textType) {
+        this.textType = textType;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
 }
