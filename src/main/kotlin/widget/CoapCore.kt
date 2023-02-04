@@ -20,46 +20,50 @@ package widget
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absolutePadding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coapDtls
+import coapHost
+import coapPath
+import coapPort
+import coapQueryParam
 import io.github.protocol.coap.CoapConfig
-import io.github.protocol.coap.CoapConfigStorage
 import io.github.protocol.coap.CoapSimulator
+import method
+import simulator
+import timeoutSeconds
 import widget.component.CheckboxInput
 import widget.component.DropdownList
 import widget.component.RowPaddingButton
-import widget.config.ConfigItemPort
 import widget.config.ConfigItemString
-
-val config = mutableStateOf(CoapConfigStorage.getCoapConfig())
-
-val coapHost = mutableStateOf(config.value.host)
-val coapPort = mutableStateOf(config.value.port)
-val coapDtls = mutableStateOf(config.value.isDtls)
-val coapPath = mutableStateOf(config.value.path)
-val coapQueryParam = mutableStateOf(config.value.queryParam)
 
 @Preview
 @Composable
 fun CoapCore() {
-    val timeoutSeconds = mutableStateOf("5")
-    val method = mutableStateOf("GET")
-    val mediaType = mutableStateOf("TEXT_PLAIN")
-    val payload = mutableStateOf("")
-    var simulator: CoapSimulator? by remember { mutableStateOf(null) }
 
     Column {
-        Text("Coap Core: ", fontSize = 40.sp)
-        ConfigItemString(coapHost, "host")
-        ConfigItemPort(coapPort, "port", mutableStateOf(""))
+        Text("Coap Core: ", fontSize = 20.sp)
         CheckboxInput(coapDtls, "dtls")
-        ConfigItemString(coapPath, "coap path")
-        ConfigItemString(coapQueryParam, "query param")
+        Row {
+            ConfigItemString(coapPath, "coap path", Modifier.fillMaxWidth(0.5f).absolutePadding(5.dp, 0.dp, 5.dp, 0.dp))
+            ConfigItemString(coapQueryParam, "query param", Modifier.fillMaxWidth(1f).absolutePadding(5.dp, 0.dp, 5.dp, 0.dp))
+        }
+
+        Row {
+            ConfigItemString(timeoutSeconds, "timeoutSeconds", Modifier.fillMaxWidth(0.5f).absolutePadding(5.dp, 0.dp, 5.dp, 0.dp))
+            DropdownList(method, listOf("GET", "POST", "PUT", "DELETE"), "method")
+        }
+        Text("sub list", fontSize = 15.sp, modifier = Modifier.absolutePadding(5.dp, 0.dp, 0.dp, 0.dp))
+        Row {
+            ConfigItemString(mutableStateOf(""), "sub urls", modifier = Modifier.fillMaxWidth(1f).absolutePadding(5.dp, 0.dp, 5.dp, 0.dp))
+        }
+
         Row {
             RowPaddingButton(
                 onClick = {
@@ -87,41 +91,13 @@ fun CoapCore() {
             ) {
                 Text(text = "disconnect", fontSize = 12.sp)
             }
-            RowPaddingButton(
-                onClick = {
-                    if (simulator == null) {
-                        addMessage("Coap simulator is not started")
-                    } else {
-                        val result = simulator!!.send(
-                            method.value,
-                            payload.value,
-                            timeoutSeconds.value,
-                            mediaType.value,
-                        )
-                        addMessage(result)
-                    }
-                }
-            ) {
-                Text(text = "send", fontSize = 12.sp)
+        }
+        CoapPayload()
+        RowPaddingButton(
+            onClick = {
             }
+        ) {
+            Text(text = "send", fontSize = 12.sp)
         }
-        Row {
-            ConfigItemString(timeoutSeconds, "timeoutSeconds")
-            DropdownList(method, listOf("GET", "POST", "PUT", "DELETE"), "method")
-        }
-        DropdownList(
-            mediaType,
-            listOf(
-                "TEXT_PLAIN",
-                "APPLICATION_LINK_FORMAT",
-                "APPLICATION_XML",
-                "APPLICATION_OCTET_STREAM",
-                "APPLICATION_EXI",
-                "APPLICATION_JSON",
-                "APPLICATION_CBOR"
-            ),
-            "mediaType"
-        )
-        ConfigItemString(payload, "payload", singleLine = false)
     }
 }

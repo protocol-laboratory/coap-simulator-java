@@ -17,44 +17,31 @@
 
 package widget
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.absolutePadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import module.CoapPlatformEnum
-import widget.coapplateform.CoapPlatformHuaweiCloud
-import widget.component.DropdownList
-
-val idx = mutableStateOf(CoapPlatformEnum.HuaweiCloud)
-@Preview
-@Composable
-fun CoapPlatform() {
-    Column {
-        Head(idx)
-        when (idx.value.name) {
-            CoapPlatformEnum.HuaweiCloud.name -> {
-                CoapPlatformHuaweiCloud()
-            }
-        }
-    }
-}
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.em
+import coapHost
+import coapPort
+import widget.config.ConfigItemString
 
 @Composable
-fun Head(idx: MutableState<CoapPlatformEnum>) {
-    Row {
-        Column(modifier = Modifier.fillMaxWidth(0.4f)) {
-            Text("Coap platform: ", modifier = Modifier.fillMaxWidth(1f).absolutePadding(10.dp, 25.dp, 0.dp, 5.dp), fontSize = 25.sp)
+fun CoapServer() {
+    Row(Modifier.fillMaxWidth(1f)) {
+        Column(Modifier.fillMaxWidth(0.3f).fillMaxHeight(1f)) {
+            Text("SERVER:", color = Color(0xFF000080), fontSize = 3.em, textAlign = TextAlign.Left)
         }
-        Column(modifier = Modifier.fillMaxWidth(1f).absolutePadding(0.dp, 0.dp, 10.dp, 0.dp)) {
-            DropdownList(mutableStateOf(idx.value.name), listOf("HuaweiCloud", "AliCloud"), "Clouds")
+        Column(Modifier.fillMaxWidth(0.5f)) {
+            ConfigItemString(coapHost, "HOST")
+        }
+        Column(Modifier.fillMaxWidth(1f)) {
+            ConfigItemString(coapPort, "PORT")
         }
     }
 }

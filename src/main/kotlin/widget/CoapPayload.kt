@@ -17,52 +17,57 @@
 
 package widget
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.protocol.coap.model.Payload
+import io.github.protocol.coap.model.TextType
 import mediaType
 import method
-import module.LimitedList
-import payload
 import simulator
 import timeoutSeconds
+import widget.component.CheckboxInput
 import widget.component.RowPaddingButton
-import widget.component.TextLogger
-
-val outputListUi: MutableState<List<String>> =
-    mutableStateOf(listOf())
-val outputMsgList = LimitedList(0, 500)
-
-fun addMessage(msg: String) {
-    outputMsgList.add(msg)
-    outputListUi.value = outputMsgList.toList()
-}
 
 @Composable
-fun CoapOutput() {
+fun CoapPayload(): Payload {
 
-    Row(modifier = Modifier.fillMaxHeight(0.92f)) {
-        Column(
-            modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(0.95f).absolutePadding(10.dp, 20.dp, 10.dp, 0.dp)
-                .border(width = 2.dp, color = Color.Gray)
-        ) {
-            TextLogger(outputListUi)
+    val isStr = mutableStateOf(false)
+    val isHex = mutableStateOf(true)
+
+    val payload = mutableStateOf("")
+    Row(Modifier.fillMaxHeight(0.1f).fillMaxWidth(1f).absolutePadding(10.dp, 0.dp, 10.dp, 0.dp)) {
+        Column(Modifier.fillMaxHeight(1f).fillMaxWidth(0.3f).absolutePadding(0.dp, 5.dp, 0.dp, 0.dp)) {
+            Text(text = "Payload Type:", fontSize = 18.sp)
+        }
+        Column(Modifier.fillMaxHeight(1f).fillMaxWidth(0.2f)) {
+            CheckboxInput(isStr, "str")
+        }
+        Column(Modifier.fillMaxHeight(1f).fillMaxWidth(0.2f)) {
+            CheckboxInput(isHex, "hex")
         }
     }
-
-    Row(modifier = Modifier.fillMaxHeight(1f)) {
-        Column(modifier = Modifier.fillMaxWidth(0.5f).absolutePadding(30.dp, 0.dp, 0.dp, 0.dp)) {
+    Row {
+        Column(Modifier.fillMaxHeight(1f).fillMaxWidth(0.2f).absolutePadding(10.dp, 0.dp, 10.dp, 0.dp)) {
+            Text(text = "Payload:", fontSize = 18.sp)
+        }
+        Column(Modifier.fillMaxHeight(1f).fillMaxWidth(1f)) {
+            OutlinedTextField(
+                value = payload.value,
+                onValueChange = {
+                    payload.value = it
+                },
+                modifier = Modifier.fillMaxHeight(0.8f).fillMaxWidth(1f).absolutePadding(0.dp, 20.dp, 20.dp, 0.dp)
+            )
             RowPaddingButton(
                 onClick = {
                     if (simulator == null) {
@@ -78,27 +83,9 @@ fun CoapOutput() {
                     }
                 }
             ) {
-                Text(text = "copy", fontSize = 12.sp)
-            }
-        }
-        Column(modifier = Modifier.fillMaxWidth(1f).absolutePadding(30.dp, 0.dp, 0.dp, 0.dp)) {
-            RowPaddingButton(
-                onClick = {
-                    if (simulator == null) {
-                        addMessage("Coap simulator is not started")
-                    } else {
-                        val result = simulator!!.send(
-                            method.value,
-                            payload.value,
-                            timeoutSeconds.value,
-                            mediaType.value,
-                        )
-                        addMessage(result)
-                    }
-                }
-            ) {
-                Text(text = "clear", fontSize = 12.sp)
+                Text(text = "send", fontSize = 12.sp)
             }
         }
     }
+    return Payload(TextType.HEX, payload.value)
 }
