@@ -40,8 +40,8 @@ val log4jVersion = "2.19.0"
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.eclipse.californium:californium-core:$californiumVersion")
-    implementation("org.eclipse.californium:scandium:$californiumVersion")
     implementation("org.eclipse.californium:element-connector:$californiumVersion")
+    implementation("org.eclipse.californium:scandium:$californiumVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
     testImplementation(kotlin("test"))
