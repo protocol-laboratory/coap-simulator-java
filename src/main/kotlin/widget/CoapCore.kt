@@ -83,7 +83,7 @@ fun CoapCore() {
             RowPaddingButton(
                 onClick = {
                     if (simulator != null) {
-                        simulator!!.stop()
+//                        simulator!!.stop()
                         simulator = null
                         addMessage("Coap simulator is stopped")
                     }

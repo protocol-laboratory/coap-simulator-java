@@ -21,24 +21,37 @@ package io.github.protocol.coap;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
+import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
+import org.eclipse.californium.core.network.Endpoint;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
 public class CoapSimulator {
 
-    private final CoapClient coapClient;
+    private CoapClient.Builder coapClientBuilder;
+
+    private final CoapServer coapServer = new CoapServer();
+
+    private final CoapConfig coapConfig;
 
     public CoapSimulator(CoapConfig coapConfig) {
-        String urlHead = coapConfig.isDtls() ? "coaps" : "coap";
-        String url = urlHead + "://" + coapConfig.getHost() + ":" + coapConfig.getPort() + "/"
-                + coapConfig.getPath() + "?" + coapConfig.getQueryParam();
-        this.coapClient = new CoapClient(url);
+        this.coapConfig = coapConfig;
+        refreshClientBuilder();
+        if (coapConfig.isDtls()) {
+            coapClientBuilder.scheme("coaps");
+        }
     }
 
-    public void stop() {
-        this.coapClient.shutdown();
+    public void refreshClientBuilder(){
+        coapClientBuilder = new CoapClient.Builder(coapConfig.getHost(), Integer.parseInt(coapConfig.getPort()))
+                .path(coapConfig.getPath())
+                .query(coapConfig.getQueryParam());
+    }
+
+    public void addServerEndPoint(Endpoint endpoint){
+        coapServer.addEndpoint(endpoint);
     }
 
     public String send(@NotNull String method, @NotNull String payload, String timeoutSeconds, String mediaType) {
@@ -46,14 +59,16 @@ public class CoapSimulator {
     }
 
     public String send(String method, String payload, String timeoutSeconds, int mediaType) {
-        this.coapClient.setTimeout(TimeUnit.SECONDS.toMillis(Integer.parseInt(timeoutSeconds)));
+        CoapClient coapClient = coapClientBuilder.create();
+        coapClient.setEndpoint(coapServer.getEndpoints().get(0));
+        coapClient.setTimeout(TimeUnit.SECONDS.toMillis(Integer.parseInt(timeoutSeconds)));
         CoapResponse coapResponse;
         try {
             switch (method) {
-                case "GET" -> coapResponse = this.coapClient.get();
-                case "POST" -> coapResponse = this.coapClient.post(payload, mediaType);
-                case "PUT" -> coapResponse = this.coapClient.put(payload, mediaType);
-                case "DELETE" -> coapResponse = this.coapClient.delete();
+                case "GET" -> coapResponse = coapClient.get();
+                case "POST" -> coapResponse = coapClient.post(payload, mediaType);
+                case "PUT" -> coapResponse = coapClient.put(payload, mediaType);
+                case "DELETE" -> coapResponse = coapClient.delete();
                 default -> throw new IllegalArgumentException("Unsupported method: " + method);
             }
         } catch (Exception e) {
@@ -63,5 +78,10 @@ public class CoapSimulator {
             return "Error: No response";
         }
         return "response is :" + coapResponse;
+    }
+
+    public void stop(){
+        coapServer.stop();
+        coapServer.destroy();
     }
 }
