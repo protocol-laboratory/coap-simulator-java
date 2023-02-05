@@ -31,7 +31,8 @@ import coapPath
 import coapPort
 import coapQueryParam
 import io.github.protocol.coap.CoapConfig
-import io.github.protocol.coap.CoapSimulator
+import io.github.protocol.coap.hc.HuaweiCloudConfig
+import io.github.protocol.coap.hc.HuaweiCloudSimulator
 import psk
 import simulator
 import verifyCode
@@ -39,6 +40,8 @@ import widget.CoapPayload
 import widget.addMessage
 import widget.component.RowPaddingButton
 import widget.config.ConfigItemString
+
+var huaweiCloudSimulator: HuaweiCloudSimulator? = null
 
 @Composable
 fun CoapPlatformHuaweiCloud() {
@@ -58,11 +61,16 @@ fun CoapPlatformHuaweiCloud() {
                     coapPath.value,
                     coapQueryParam.value,
                 )
-                simulator = CoapSimulator(coapConfig)
+                val huaweiCloudConfig = HuaweiCloudConfig(
+                    psk.value,
+                    verifyCode.value
+                )
+                huaweiCloudSimulator = HuaweiCloudSimulator(huaweiCloudConfig, coapConfig)
+                simulator = huaweiCloudSimulator!!.coapSimulator
                 addMessage("Coap simulator is started")
             }
         ) {
-            Text(text = "connect", fontSize = 12.sp)
+            Text(text = "start", fontSize = 12.sp)
         }
         RowPaddingButton(
             onClick = {
@@ -73,7 +81,16 @@ fun CoapPlatformHuaweiCloud() {
                 }
             }
         ) {
-            Text(text = "disconnect", fontSize = 12.sp)
+            Text(text = "stop", fontSize = 12.sp)
+        }
+        RowPaddingButton(
+            onClick = {
+                if (huaweiCloudSimulator != null) {
+                    addMessage("device regist response" + huaweiCloudSimulator!!.deviceRegistry())
+                }
+            }
+        ) {
+            Text(text = "regist device", fontSize = 12.sp)
         }
     }
     CoapPayload()

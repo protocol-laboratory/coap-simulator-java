@@ -37,13 +37,12 @@ import widget.CoapOutput
 import widget.CoapPlatform
 import widget.CoapServer
 
-val config = mutableStateOf(CoapConfigStorage.getCoapConfig())
-
-val coapHost = mutableStateOf(config.value.host)
-val coapPort = mutableStateOf(config.value.port)
-val coapDtls = mutableStateOf(config.value.isDtls)
-val coapPath = mutableStateOf(config.value.path)
-val coapQueryParam = mutableStateOf(config.value.queryParam)
+val coapConfig = mutableStateOf(CoapConfigStorage.getCoapConfig())
+val coapHost = mutableStateOf(coapConfig.value.host)
+val coapPort = mutableStateOf(coapConfig.value.port)
+val coapDtls = mutableStateOf(coapConfig.value.isDtls)
+val coapPath = mutableStateOf(coapConfig.value.path)
+val coapQueryParam = mutableStateOf(coapConfig.value.queryParam)
 var simulator: CoapSimulator? = null
 val timeoutSeconds = mutableStateOf("5")
 val method = mutableStateOf("GET")
